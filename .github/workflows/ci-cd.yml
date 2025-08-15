@@ -1,0 +1,99 @@
+name: CI/CD Pipeline for QuizGame
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-scan:
+    name: Build, Scan, and Push Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false # Don't push yet, we need to scan it first
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
+          outputs: type=docker,dest=/tmp/quiz-game.tar
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: quiz-game-image
+            path: /tmp/quiz-game.tar
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          input: /tmp/quiz-game.tar
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  push-and-deploy:
+    name: Push to DockerHub and Deploy to Azure VM
+    needs: build-and-scan # This job runs only if the previous one succeeds
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: quiz-game-image
+          path: /tmp
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/quiz-game.tar
+          docker images
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Push image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
+      
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
+          script: |
+            # Stop and remove the old container if it exists
+            docker stop quiz-game-app || true
+            docker rm quiz-game-app || true
+            
+            # Pull the latest image from Docker Hub
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
+            
+            # Run the new container
+            docker run -d --name quiz-game-app --restart always -it ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
