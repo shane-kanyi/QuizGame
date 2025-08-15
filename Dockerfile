@@ -1,21 +1,18 @@
-# Stage 1: Build the application
+# Use the .NET SDK image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# Copy the solution and project files
-COPY ["QuizGame.sln", "."]
-COPY ["QuizGame.csproj", "."]
+# Set the working directory
+WORKDIR /source
 
-# Restore dependencies for the solution
-RUN dotnet restore "./QuizGame.sln"
-
-# Copy the rest of the application's source code
+# Copy everything from the build context (your repo root) into the container
 COPY . .
 
-# Publish the project
-RUN dotnet publish "./QuizGame.csproj" -c Release -o /app/publish
+# Restore dependencies, build, and publish in a single command.
+# This is a very robust way to build, as it handles the entire lifecycle.
+# The command targets the solution file, which is best practice.
+RUN dotnet publish "QuizGame.sln" --configuration Release --output /app/publish
 
-# Stage 2: Create the final runtime image
+# Start the final, lean image
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
