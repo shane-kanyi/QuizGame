@@ -1,0 +1,14 @@
+# This file suppresses specific CVEs found in the base image.
+# We are accepting this risk temporarily until the base image is updated.
+
+# Expires: 2025-10-15
+# Reason: In libicu72, part of the Debian base image.
+CVE-2025-5222
+
+# Expires: 2025-10-15
+# Reason: In liblzma5, part of the Debian base image.
+CVE-2025-31115
+
+# Expires: 2025-10-15
+# Reason: In perl-base, part of the Debian base image.
+CVE-2024-56406
