@@ -1,19 +1,15 @@
-# Use the .NET SDK image
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
-# Set the working directory
+# Stage 1: Use the .NET 9 Preview SDK to match your project's target framework
+FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
 WORKDIR /source
 
-# Copy everything from the build context (your repo root) into the container
+# Copy all files from the build context into the container
 COPY . .
 
-# Restore dependencies, build, and publish in a single command.
-# This is a very robust way to build, as it handles the entire lifecycle.
-# The command targets the solution file, which is best practice.
+# Publish the solution using the .NET 9 SDK. This will now succeed.
 RUN dotnet publish "QuizGame.sln" --configuration Release --output /app/publish
 
-# Start the final, lean image
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS final
+# Stage 2: Use the .NET 9 Preview Runtime for the final, lean image
+FROM mcr.microsoft.com/dotnet/runtime:9.0-preview AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
