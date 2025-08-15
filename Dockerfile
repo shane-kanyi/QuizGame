@@ -1,5 +1,5 @@
 # Stage 1: Use the .NET 9 Preview SDK to match your project's target framework
-FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 
 # Copy all files from the build context into the container
