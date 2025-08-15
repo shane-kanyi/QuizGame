@@ -32,12 +32,13 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: false # Don't push yet, we need to scan it first
+          push: false 
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
           outputs: type=docker,dest=/tmp/quiz-game.tar
           
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload artifact for scanning and deployment
+        
+        uses: actions/upload-artifact@v4 
         with:
             name: quiz-game-image
             path: /tmp/quiz-game.tar
@@ -54,20 +55,21 @@ jobs:
 
   push-and-deploy:
     name: Push to DockerHub and Deploy to Azure VM
-    needs: build-and-scan # This job runs only if the previous one succeeds
+    needs: build-and-scan 
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      - name: Download artifact
-        uses: actions/download-artifact@v3
+      - name: Download artifact from build job
+        # --- THIS LINE HAS BEEN UPDATED FROM v3 to v4 ---
+        uses: actions/download-artifact@v4
         with:
           name: quiz-game-image
           path: /tmp
 
-      - name: Load image
+      - name: Load image from artifact
         run: |
           docker load --input /tmp/quiz-game.tar
           docker images
@@ -96,4 +98,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
             
             # Run the new container
-            docker run -d --name quiz-game-app --restart always -it ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
+            docker run -d --name quiz-game-app --restart always -it ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest```
