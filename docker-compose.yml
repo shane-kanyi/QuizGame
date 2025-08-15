@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  quiz-game:
+    build: .
+    image: quiz-game:latest
+    container_name: quiz-game-app
+    # The 'stdin_open' and 'tty' are essential for interacting with a console app
+    stdin_open: true
+    tty: true
