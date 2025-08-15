@@ -1,14 +1,19 @@
 # Stage 1: Build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy the project file and restore dependencies
-COPY *.csproj .
-RUN dotnet restore
+# Copy the solution and project files
+COPY ["QuizGame.sln", "."]
+COPY ["QuizGame.csproj", "."]
 
-# Copy the rest of the source code and build the application
+# Restore dependencies for the solution
+RUN dotnet restore "./QuizGame.sln"
+
+# Copy the rest of the application's source code
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+
+# Publish the project
+RUN dotnet publish "./QuizGame.csproj" -c Release -o /app/publish
 
 # Stage 2: Create the final runtime image
 FROM mcr.microsoft.com/dotnet/runtime:8.0 AS final
