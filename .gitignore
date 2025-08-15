@@ -27,3 +27,33 @@ bld/
 # Dotnet files
 project.lock.json
 project.assets.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfplan
+
+# Dotnet binaries
+*.dll
+*.pdb
+*.exe
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+build/
+
+# Misc
+*.env
+*.db
+.DS_Store
+
+# Jupyter
+*.ipynb
