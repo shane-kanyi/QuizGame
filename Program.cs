@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace QuizGame
 {
@@ -140,10 +139,12 @@ namespace QuizGame
             Console.WriteLine("2. Open-Ended");
             Console.WriteLine("3. True/False");
             Console.Write("Enter your choice: ");
-            string choice = Console.ReadLine();
+            
+            // Use '!' to assert that Console.ReadLine() is non-null
+            string choice = Console.ReadLine()!; 
 
             Console.Write("Enter the question text: ");
-            string text = Console.ReadLine();
+            string text = Console.ReadLine()!;
 
             switch (choice)
             {
@@ -152,21 +153,28 @@ namespace QuizGame
                     for (int i = 0; i < 4; i++)
                     {
                         Console.Write($"Enter option {i + 1}: ");
-                        options.Add(Console.ReadLine());
+                        options.Add(Console.ReadLine()!);
                     }
                     Console.Write("Enter the correct option number (1-4): ");
-                    int correctIndex = int.Parse(Console.ReadLine()) - 1;
-                    _questions.Add(new MultipleChoiceQuestion(text, options, correctIndex));
+                    // Handle potential parse failure more robustly
+                    if (int.TryParse(Console.ReadLine(), out int correctIndex))
+                    {
+                        _questions.Add(new MultipleChoiceQuestion(text, options, correctIndex - 1));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid index provided.");
+                    }
                     break;
                 case "2":
                     Console.Write("Enter all acceptable answers, separated by a comma (e.g., UK,United Kingdom): ");
-                    string answersStr = Console.ReadLine();
+                    string answersStr = Console.ReadLine()!;
                     List<string> acceptableAnswers = answersStr.Split(',').Select(a => a.Trim()).ToList();
                     _questions.Add(new OpenEndedQuestion(text, acceptableAnswers));
                     break;
                 case "3":
                     Console.Write("Is the correct answer True or False? ");
-                    bool correctAnswer = Console.ReadLine().Trim().Equals("True", StringComparison.OrdinalIgnoreCase);
+                    bool correctAnswer = Console.ReadLine()!.Trim().Equals("True", StringComparison.OrdinalIgnoreCase);
                     _questions.Add(new TrueFalseQuestion(text, correctAnswer));
                     break;
                 default:
@@ -176,7 +184,7 @@ namespace QuizGame
             Console.WriteLine("Question added successfully!");
         }
         
-        private Question SelectQuestion(string action)
+        private Question? SelectQuestion(string action)
         {
             if (_questions.Count == 0)
             {
@@ -190,6 +198,8 @@ namespace QuizGame
                 Console.WriteLine($"{i + 1}. {_questions[i].Text}");
             }
             Console.Write("Enter question number: ");
+            
+            // Handle null and non-integer input
             if(int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= _questions.Count)
             {
                 return _questions[index - 1];
@@ -202,7 +212,7 @@ namespace QuizGame
 
         public void EditQuestion()
         {
-            Question questionToEdit = SelectQuestion("edit");
+            Question? questionToEdit = SelectQuestion("edit");
             if (questionToEdit != null)
             {
                 int index = _questions.IndexOf(questionToEdit);
@@ -215,7 +225,7 @@ namespace QuizGame
 
         public void DeleteQuestion()
         {
-            Question questionToDelete = SelectQuestion("delete");
+            Question? questionToDelete = SelectQuestion("delete");
              if (questionToDelete != null)
             {
                 _questions.Remove(questionToDelete);
@@ -232,7 +242,8 @@ namespace QuizGame
             }
 
             int score = 0;
-            var userAnswers = new List<Tuple<Question, string>>();
+            // Ensure Tuple handles potential null answers
+            var userAnswers = new List<Tuple<Question, string?>>();
             Stopwatch stopwatch = new Stopwatch();
 
             Console.WriteLine("\n--- Starting Quiz ---");
@@ -242,9 +253,12 @@ namespace QuizGame
             {
                 question.Display();
                 Console.Write("Your answer: ");
-                string answer = Console.ReadLine();
-                userAnswers.Add(new Tuple<Question, string>(question, answer));
-                if (question.IsCorrect(answer))
+                // Ensure we read the answer (which might be null if the stream ends)
+                string? answer = Console.ReadLine(); 
+                userAnswers.Add(new Tuple<Question, string?>(question, answer));
+                
+                // Only evaluate if the answer is not null
+                if (answer != null && question.IsCorrect(answer))
                 {
                     score++;
                 }
@@ -256,13 +270,14 @@ namespace QuizGame
             Console.WriteLine($"Time taken: {stopwatch.Elapsed.Minutes} minutes and {stopwatch.Elapsed.Seconds} seconds.");
             
             Console.Write("\nDo you want to see the correct answers? (yes/no): ");
-            if (Console.ReadLine().Trim().Equals("yes", StringComparison.OrdinalIgnoreCase))
+            // Use '!' on Console.ReadLine() again
+            if (Console.ReadLine()!.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("\n--- Correct Answers ---");
                 foreach(var qa in userAnswers)
                 {
                     Console.WriteLine($"Q: {qa.Item1.Text}");
-                    Console.WriteLine($"Your answer: {qa.Item2} | Correct answer: {qa.Item1.GetCorrectAnswer()}");
+                    Console.WriteLine($"Your answer: {qa.Item2 ?? "[No answer provided]"} | Correct answer: {qa.Item1.GetCorrectAnswer()}");
                     Console.WriteLine("--------------------");
                 }
             }
@@ -277,24 +292,7 @@ namespace QuizGame
             Quiz quiz = new Quiz();
             bool exit = false;
 
-            // Add some sample questions for easy testing
-            quiz.GetType().GetMethod("AddQuestion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(quiz, new object[] { });
-            Console.WriteLine("What is the capital of France?");
-            Console.WriteLine("Paris");
-            Console.WriteLine("London");
-            Console.WriteLine("Berlin");
-            Console.WriteLine("Madrid");
-            Console.WriteLine("1");
-            quiz.GetType().GetMethod("AddQuestion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(quiz, new object[] { });
-            Console.WriteLine("Which country is known as the Land of the Rising Sun?");
-            Console.WriteLine("Japan,Nippon");
-            quiz.GetType().GetMethod("AddQuestion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(quiz, new object[] { });
-            Console.WriteLine("The Great Wall of China is visible from space. (True/False)");
-            Console.WriteLine("False");
-
+            // --- REMOVED: The problematic reflection code for sample questions ---
 
             while (!exit)
             {
@@ -303,7 +301,8 @@ namespace QuizGame
                 Console.WriteLine("2. Play Game");
                 Console.WriteLine("3. Exit");
                 Console.Write("Enter your choice: ");
-                string choice = Console.ReadLine();
+                // Use '!' to assert that Console.ReadLine() is non-null
+                string choice = Console.ReadLine()!; 
 
                 switch (choice)
                 {
@@ -334,7 +333,8 @@ namespace QuizGame
                 Console.WriteLine("3. Delete an existing question");
                 Console.WriteLine("4. Back to Main Menu");
                 Console.Write("Enter your choice: ");
-                string choice = Console.ReadLine();
+                // Use '!' to assert that Console.ReadLine() is non-null
+                string choice = Console.ReadLine()!;
 
                 switch (choice)
                 {
