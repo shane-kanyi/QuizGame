@@ -3,16 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geography Quiz Game</title>
+    <title>Dynamic Quiz Builder</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="quiz-container">
-        <h1>Geography Quiz</h1>
-        <div id="game-area" style="display: none;"></div>
-        <div id="start-screen">
-            <button id="start-button">Start Game</button>
+        <!-- View 1: Home Screen -->
+        <div id="home-view">
+            <h1>Dynamic Quiz Builder</h1>
+            <div class="button-group">
+                <button id="show-create-view-btn">Create a New Quiz</button>
+                <button id="show-play-view-btn">Play a Quiz</button>
+            </div>
         </div>
+
+        <!-- View 2: Create Quiz Name -->
+        <div id="create-quiz-view" class="hidden">
+            <h2>Create a New Quiz</h2>
+            <input type="text" id="quiz-name-input" placeholder="Enter Quiz Name...">
+            <button id="create-quiz-btn">Create and Add Questions</button>
+        </div>
+
+        <!-- View 3: Add Questions -->
+        <div id="add-question-view" class="hidden">
+            <h2 id="add-question-title"></h2>
+            <select id="question-type-select">
+                <option value="MultipleChoice">Multiple Choice</option>
+                <option value="OpenEnded">Open Ended</option>
+                <option value="TrueFalse">True / False</option>
+            </select>
+            <div id="question-form-area"></div>
+            <div class="button-group">
+                <button id="add-question-btn">Add This Question</button>
+                <button id="finish-quiz-btn" class="secondary">Finish and Go Home</button>
+            </div>
+        </div>
+
+        <!-- View 4: Select a Quiz to Play -->
+        <div id="play-quiz-list-view" class="hidden">
+            <h2>Select a Quiz to Play</h2>
+            <div id="quiz-list-container"></div>
+        </div>
+
+        <!-- View 5: The Actual Game Area -->
+        <div id="game-view" class="hidden"></div>
+        
     </div>
     <script src="js/app.js"></script>
 </body>
