@@ -18,7 +18,8 @@ namespace QuizGame
         public abstract string GetCorrectAnswer();
     }
 
-    // Inheritance: Derived class for multiple-choice questions
+    // --- The MultipleChoiceQuestion, OpenEndedQuestion, and TrueFalseQuestion classes remain unchanged ---
+    // (They are included here for completeness of the file)
     public class MultipleChoiceQuestion : Question
     {
         public List<string> Options { get; private set; }
@@ -44,102 +45,73 @@ namespace QuizGame
             return Options[_correctOptionIndex];
         }
     }
-
-    // Inheritance: Derived class for open-ended questions
     public class OpenEndedQuestion : Question
     {
         public List<string> AcceptableAnswers { get; private set; }
-
         public OpenEndedQuestion(string text, List<string> acceptableAnswers) : base(text)
         {
             AcceptableAnswers = acceptableAnswers.Select(a => a.ToLower()).ToList();
         }
-
-
-
-        public override bool IsCorrect(string answer)
-        {
-            return AcceptableAnswers.Contains(answer.Trim().ToLower());
-        }
-
-        public override string GetCorrectAnswer()
-        {
-            return AcceptableAnswers.First();
-        }
+        public override bool IsCorrect(string answer) => AcceptableAnswers.Contains(answer.Trim().ToLower());
+        public override string GetCorrectAnswer() => AcceptableAnswers.First();
     }
-
-    // Inheritance: Derived class for true/false questions
     public class TrueFalseQuestion : Question
     {
         private bool _correctAnswer;
-
-        public TrueFalseQuestion(string text, bool correctAnswer) : base(text)
-        {
-            _correctAnswer = correctAnswer;
-        }
-
+        public TrueFalseQuestion(string text, bool correctAnswer) : base(text) => _correctAnswer = correctAnswer;
         public override bool IsCorrect(string answer)
         {
             string formattedAnswer = answer.Trim().ToLower();
-            if (formattedAnswer == "true" || formattedAnswer == "t")
-            {
-                return _correctAnswer == true;
-            }
-            if (formattedAnswer == "false" || formattedAnswer == "f")
-            {
-                return _correctAnswer == false;
-            }
+            if (formattedAnswer == "true" || formattedAnswer == "t") return _correctAnswer == true;
+            if (formattedAnswer == "false" || formattedAnswer == "f") return _correctAnswer == false;
             return false;
         }
-
-        public override string GetCorrectAnswer()
-        {
-            return _correctAnswer.ToString();
-        }
+        public override string GetCorrectAnswer() => _correctAnswer.ToString();
     }
 
-    // Main Game Logic Class - Now Adapted for a Web API
+
+    // Main Game Logic Class - Heavily Refactored
     public class Quiz
     {
-        private List<Question> _questions = new List<Question>();
+        public string Name { get; private set; }
+        public List<Question> Questions { get; private set; } = new List<Question>();
+        
+        // --- Properties for managing a single game session ---
         private int _currentQuestionIndex = -1;
         public int Score { get; private set; }
-        public int TotalQuestions => _questions.Count;
+        public int TotalQuestions => Questions.Count;
 
-        // The constructor now loads the questions directly
-        public Quiz()
+        // Constructor for a new, empty quiz
+        public Quiz(string name)
         {
-            _questions.Add(new MultipleChoiceQuestion("What is the capital of France?", new List<string> { "London", "Berlin", "Paris", "Madrid" }, 2));
-            _questions.Add(new OpenEndedQuestion("Which country is known as the Land of the Rising Sun?", new List<string> { "Japan", "Nippon" }));
-            _questions.Add(new TrueFalseQuestion("The Great Wall of China is visible from space with the naked eye.", false));
-            _questions.Add(new MultipleChoiceQuestion("Which is the largest planet in our solar system?", new List<string> { "Earth", "Jupiter", "Mars", "Saturn" }, 1));
+            Name = name;
+        }
+        
+        public void AddQuestion(Question question)
+        {
+            Questions.Add(question);
         }
 
+        // --- Methods for managing a game session ---
         public void StartNewGame()
         {
             Score = 0;
             _currentQuestionIndex = -1;
-            // Optional: Shuffle questions for a new experience each time
-            // var random = new Random();
-            // _questions = _questions.OrderBy(q => random.Next()).ToList();
         }
 
         public (Question? question, int index) GetNextQuestion()
         {
             _currentQuestionIndex++;
-            if (_currentQuestionIndex < _questions.Count)
+            if (_currentQuestionIndex < Questions.Count)
             {
-                return (_questions[_currentQuestionIndex], _currentQuestionIndex);
+                return (Questions[_currentQuestionIndex], _currentQuestionIndex);
             }
-            return (null, -1); // No more questions
+            return (null, -1);
         }
 
         public Question? GetQuestionByIndex(int index)
         {
-            if (index >= 0 && index < _questions.Count)
-            {
-                return _questions[index];
-            }
+            if (index >= 0 && index < Questions.Count) return Questions[index];
             return null;
         }
 
