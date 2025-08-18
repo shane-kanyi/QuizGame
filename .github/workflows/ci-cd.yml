@@ -48,7 +48,6 @@ jobs:
           input: /tmp/quiz-game.tar
           format: 'table'
           exit-code: '1'
-          ignore-file: '.trivyignore'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'

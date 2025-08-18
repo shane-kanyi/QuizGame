@@ -12,3 +12,7 @@ CVE-2025-31115
 # Expires: 2025-10-15
 # Reason: In perl-base, part of the Debian base image.
 CVE-2024-56406
+
+# Expires: 2025-10-15
+# Reason: In libgnutls30, part of the Debian base image.
+CVE-2025-32990
