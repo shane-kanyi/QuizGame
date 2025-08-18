@@ -17,11 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const showCreateBtn = document.getElementById('show-create-view-btn');
     const showPlayBtn = document.getElementById('show-play-view-btn');
     const createQuizBtn = document.getElementById('create-quiz-btn');
-    // ... (other buttons) ...
+    const quizNameInput = document.getElementById('quiz-name-input');
+    const questionTypeSelect = document.getElementById('question-type-select');
+    const questionFormArea = document.getElementById('question-form-area');
+    const addQuestionBtn = document.getElementById('add-question-btn');
     const finishQuizBtn = document.getElementById('finish-quiz-btn');
     const quizListContainer = document.getElementById('quiz-list-container');
-    const backButtons = document.querySelectorAll('.back-btn'); 
-
+    const backButtons = document.querySelectorAll('.back-btn');
+    
     // --- Navigation Logic ---
     const navigateTo = (viewName) => {
         Object.values(views).forEach(view => view.classList.add('hidden'));
@@ -38,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navigateTo('playList');
     });
     finishQuizBtn.addEventListener('click', goHome);
-    backButtons.forEach(btn => btn.addEventListener('click', goHome)); 
+    backButtons.forEach(btn => btn.addEventListener('click', goHome));
 
     // --- Core Logic: Creating a Quiz ---
     createQuizBtn.addEventListener('click', async () => {
