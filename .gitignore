@@ -34,6 +34,8 @@ project.assets.json
 *.tfstate.*.backup
 crash.log
 *.tfvars
+# Terraform plan files
+*.tfplan
 
 # Dotnet binaries
 *.dll
