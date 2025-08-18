@@ -96,5 +96,5 @@ jobs:
             # Pull the latest image from Docker Hub
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
             
-            # Run the new container
-            docker run -d --name quiz-game-app --restart always -it ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
+            # Run the new container, mapping port 80 on the VM to 8080 in the container
+            docker run -d -p 80:8080 --name quiz-game-app --restart always ${{ secrets.DOCKERHUB_USERNAME }}/quiz-game:latest
