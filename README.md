@@ -1,55 +1,97 @@
-# C# Console Quiz Game with a Full DevOps Pipeline
+# Dynamic Quiz Builder
 
-This project contains a text-based quiz game on the topic of Geography, developed as a C# Console Application. It is accompanied by a complete DevOps toolchain for automated building, testing, security scanning, and deployment to an Azure Virtual Machine.
+A full-stack, dynamic web application for creating, managing, and playing quizzes on any topic. Originally a C# console app, now a cloud-native web app with automated DevOps pipeline.
 
-## Project Structure
+---
 
-- **/QuizGame**: Contains the C# source code for the console application.
-- **Dockerfile**: A multi-stage Dockerfile to build an optimized, production-ready container image of the application.
-- **docker-compose.yml**: For running the application locally using Docker.
-- **terraform/**: Contains Terraform scripts to provision all necessary Azure infrastructure, including a VM with Docker pre-installed.
-- **.github/workflows/**: Contains the GitHub Actions CI/CD pipeline definition (`ci-cd.yml`).
+## 🚀 Live Demo
+The app is deployed on a Microsoft Azure Virtual Machine:
+```
+http://<YOUR_AZURE_VM_IP>
+```
+Find the IP by running `terraform output public_ip_address` in the `terraform` directory or checking your GitHub secrets.
 
-## Features
+---
 
-### Application Features
-- **Two Modes**: Create Mode (add/edit/delete questions) and Play Mode.
-- **Three Question Types**: Multiple Choice, Open-Ended, and True/False.
-- **OOP Principles**: Utilizes abstraction, inheritance, and encapsulation.
-- **Scoring & Timing**: Calculates the final score and the time taken to complete the quiz.
+## ✨ Core Features
+### Application
+- **Dynamic Quiz Creation:** Create new quizzes from scratch.
+- **Multiple Question Types:** Add multiple-choice, open-ended, and true/false questions.
+- **Play Any Quiz:** Home screen lists all quizzes to play.
+- **Interactive Gameplay:** SPA experience for answering questions and seeing results.
+- **Responsive UI:** Works on desktop, laptop, and mobile.
+- **In-Memory Storage:** Quizzes are stored in memory (data cleared on restart).
 
-### DevOps Features
-- **Source Control**: Git repository hosted on GitHub with a feature-branching workflow.
-- **Infrastructure as Code (IaC)**: Terraform provisions a complete environment on Azure.
-- **Containerization**: The application is containerized with Docker for portability and consistency.
-- **Continuous Integration (CI)**: On every push to `main`, GitHub Actions automatically builds the application.
-- **DevSecOps**: The Docker image is scanned for critical vulnerabilities using **Trivy**.
-- **Continuous Deployment (CD)**: On a successful build and scan, the new image is pushed to Docker Hub and automatically deployed to the Azure VM.
+### DevOps & Engineering
+- **Infrastructure as Code (IaC):** Azure cloud infrastructure managed with Terraform.
+- **Containerized:** Packaged as a Docker image for portability.
+- **Automated CI/CD:** GitHub Actions pipeline for build, scan, and deploy on every push to `main`.
+- **DevSecOps Security Gate:** Trivy scans Docker images for HIGH/CRITICAL vulnerabilities; build fails if found (unless ignored in `.trivyignore`).
 
-## How to Run
+---
 
-### Locally (via .NET CLI)
-1. Navigate to the `QuizGame` directory.
-2. Run the command: `dotnet run`
+## 🛠️ Technology Stack
+| Area      | Technologies Used                        |
+|-----------|------------------------------------------|
+| Backend   | C#, ASP.NET Core, Web API                |
+| Frontend  | HTML5, CSS3, Vanilla JavaScript (SPA)    |
+| Cloud     | Microsoft Azure (Virtual Machine)        |
+| DevOps    | Docker, Terraform, GitHub Actions, Trivy |
 
-### Locally (via Docker)
-1. Make sure you have Docker installed.
-2. From the `QuizGame` directory, run: `docker-compose up --build`
-3. To interact with the game, attach to the container's terminal: `docker attach quiz-game-app` (Press `Ctrl+P` then `Ctrl+Q` to detach without stopping it).
+---
 
-### Deployed on Azure
-The CI/CD pipeline handles the deployment automatically. To play the game on the deployed instance:
-1. SSH into the Azure VM: `ssh <your_vm_username>@<your_vm_ip>`
-2. Attach to the running Docker container: `docker attach quiz-game-app`
+## 🏗️ Project Structure
+```
+.
+├── .github/workflows/      # GitHub Actions CI/CD pipeline
+├── Controllers/            # ASP.NET Core API controllers
+├── Models/                 # C# classes for game logic
+├── terraform/              # Terraform scripts for Azure infra
+├── wwwroot/                # Frontend assets (HTML, CSS, JS)
+├── .dockerignore           # Docker ignore file
+├── .gitignore              # Git ignore file
+├── .trivyignore            # Trivy CVE ignore file
+├── Dockerfile              # Docker build file
+├── QuizGame.csproj         # C# project file
+└── QuizGame.sln            # Solution file
+```
 
-## CI/CD Pipeline
+---
 
-The pipeline is defined in `.github/workflows/ci-cd.yml` and performs the following steps on every push to the `main` branch:
-1. **Build & Scan Job**:
-    - Checks out the source code.
-    - Builds the Docker image.
-    - Scans the image with Trivy for HIGH and CRITICAL vulnerabilities. The job fails if any are found.
-2. **Push & Deploy Job**:
-    - Runs only if the `build-and-scan` job succeeds.
-    - Pushes the scanned Docker image to Docker Hub.
-    - SSHes into the Azure VM, pulls the new image, and restarts the Docker container with the updated version.
+## 💻 How to Run Locally
+### Prerequisites
+- .NET 9 SDK
+- Docker Desktop
+
+### Option 1: Using the .NET CLI
+Run the web server directly:
+```bash
+# From the project root
+dotnet run
+```
+App available at `http://localhost:5xxx` (see terminal output for port).
+
+### Option 2: Using Docker (Recommended)
+Build and run inside a container:
+```bash
+# From the project root
+docker build -t quiz-game-local .
+docker run -p 8080:8080 quiz-game-local
+```
+App available at `http://localhost:8080`.
+
+---
+
+## 🔄 CI/CD Pipeline Workflow
+- **Trigger:** On every push to `main`.
+- **Build:** Compile and publish C# app, build Docker image.
+- **Scan:** Trivy scans Docker image for vulnerabilities. Build fails if HIGH/CRITICAL CVEs found (unless ignored).
+- **Push:** Tag and push image to Docker Hub.
+- **Deploy:** SSH into Azure VM, pull latest image, stop old container, start new one with correct port mapping.
+
+---
+
+## 🚀 Future Improvements
+- **Persistent Storage:** Use a database (PostgreSQL/SQLite) for quizzes.
+- **User Accounts:** Add authentication for private quizzes.
+- **Custom Domain & HTTPS:** Set up domain and SSL (Nginx/Caddy) for secure access.
