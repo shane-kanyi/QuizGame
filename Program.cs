@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 // **CRITICAL:** We register our Quiz class as a Singleton.
 // This means there will be only ONE instance of the Quiz for the entire
 // application. All users will be playing the same game instance.
-builder.Services.AddSingleton<Quiz>();
+builder.Services.AddSingleton<QuizService>();
 
 
 var app = builder.Build();
