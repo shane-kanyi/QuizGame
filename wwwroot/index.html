@@ -8,7 +8,7 @@
 </head>
 <body>
     <div id="quiz-container">
-        <!-- View 1: Home Screen -->
+        <!-- View 1: Home Screen (No back button needed) -->
         <div id="home-view">
             <h1>Dynamic Quiz Builder</h1>
             <div class="button-group">
@@ -19,6 +19,7 @@
 
         <!-- View 2: Create Quiz Name -->
         <div id="create-quiz-view" class="hidden">
+            <button class="back-btn">&larr;</button> <!-- ADD THIS -->
             <h2>Create a New Quiz</h2>
             <input type="text" id="quiz-name-input" placeholder="Enter Quiz Name...">
             <button id="create-quiz-btn">Create and Add Questions</button>
@@ -26,6 +27,7 @@
 
         <!-- View 3: Add Questions -->
         <div id="add-question-view" class="hidden">
+            <button class="back-btn">&larr;</button> <!-- ADD THIS -->
             <h2 id="add-question-title"></h2>
             <select id="question-type-select">
                 <option value="MultipleChoice">Multiple Choice</option>
@@ -41,11 +43,12 @@
 
         <!-- View 4: Select a Quiz to Play -->
         <div id="play-quiz-list-view" class="hidden">
+            <button class="back-btn">&larr;</button> <!-- ADD THIS -->
             <h2>Select a Quiz to Play</h2>
             <div id="quiz-list-container"></div>
         </div>
 
-        <!-- View 5: The Actual Game Area -->
+        <!-- View 5: The Actual Game Area (No back button during play) -->
         <div id="game-view" class="hidden"></div>
         
     </div>
